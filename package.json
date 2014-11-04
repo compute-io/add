@@ -25,7 +25,13 @@
   "keywords": [
     "compute.io",
     "compute",
-    "computation"
+    "computation",
+    "mathematics",
+    "math",
+    "algebra",
+    "addition",
+    "element-wise",
+    "array"
   ],
   "bugs": {
     "url": "https://github.com/compute-io/add/issues"

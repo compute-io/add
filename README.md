@@ -1,4 +1,4 @@
-add
+Add
 ===
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Dependencies][dependencies-image]][dependencies-url]
 
@@ -19,24 +19,55 @@ For use in the browser, use [browserify](https://github.com/substack/node-browse
 To use the module,
 
 ``` javascript
-var foo = require( 'compute-add' );
+var add = require( 'compute-add' );
 ```
 
-#### foo( arr )
+#### add( arr, x )
 
-What does this function do?
+Computes an element-wise addition of an input `array`. `x` may be either an `array` of equal length or a scalar.
+
+``` javascript
+add( [ 2, 1, 4, 2 ], 1 );
+// returns [ 3, 2, 5, 3 ]
+
+add( [ 2, 1, 4, 2 ], [ 1, 2, 3, 3 ] );
+// returns [ 3, 3, 7, 5 ]
+```
 
 
 ## Examples
 
 ``` javascript
-var foo = require( 'compute-add' );
+var add = require( 'compute-add' );
+
+// Simulate some data...
+var data = new Array( 100 );
+
+for ( var i = 0; i < data.length; i++ ) {
+	data[ i ] = Math.round( Math.random()*100 );
+}
+
+add( data, 10 );
+
+console.log( data.join( '\n' ) );
 ```
 
 To run the example code from the top-level application directory,
 
 ``` bash
 $ node ./examples/index.js
+```
+
+
+## Notes
+
+This function mutates the input `array`. If mutation is undesired,
+
+``` javascript
+var data = [ 1, 2, 3, 4 ],
+	copy = data.slice();
+
+add( copy, 3.14 );
 ```
 
 
