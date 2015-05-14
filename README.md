@@ -109,7 +109,7 @@ var out = add( data, arr, {
 // returns [ 9, 8, 14, 8, 5 ]
 ```
 
-__Note__: `j` corresponds to the input `array` index, where `j=0` is the index for the first input `array` and `j=1` is the index for the second (comparison) input `array`.
+__Note__: `j` corresponds to the input `array` index, where `j=0` is the index for the first input `array` and `j=1` is the index for the second input `array`.
 
 
 
