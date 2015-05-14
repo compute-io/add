@@ -22,7 +22,7 @@ var add = require( 'compute-add' );
 
 #### add( arr, x[, opts] )
 
-Computes an element-wise addition. `x` may be either an `array` of equal length or a `numeric` scalar.
+Computes an element-wise addition. `x` may be either an `array` of equal length or a `numeric` value.
 
 ``` javascript
 var arr = [ 2, 1, 4, 2 ],
