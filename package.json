@@ -1,6 +1,6 @@
 {
   "name": "compute-add",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Computes an element-wise addition.",
   "author": {
     "name": "Athan Reines",
