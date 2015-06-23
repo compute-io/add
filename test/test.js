@@ -6,6 +6,12 @@
 var // Expectation library:
 	chai = require( 'chai' ),
 
+	// Matrix data structure:
+	matrix = require( 'dstructs-matrix' ),
+
+	// Validate if a value is NaN:
+	isnan = require( 'validate.io-nan' ),
+
 	// Module to be tested:
 	add = require( './../lib' );
 
@@ -24,45 +30,82 @@ describe( 'compute-add', function tests() {
 		expect( add ).to.be.a( 'function' );
 	});
 
-	it( 'should throw an error if not provided an array', function test() {
+	it( 'should throw an error if provided an invalid option', function test() {
 		var values = [
 			'5',
 			5,
-			null,
-			undefined,
-			NaN,
 			true,
-			{},
-			function(){}
+			undefined,
+			null,
+			NaN,
+			[],
+			{}
 		];
 
 		for ( var i = 0; i < values.length; i++ ) {
 			expect( badValue( values[i] ) ).to.throw( TypeError );
 		}
-
 		function badValue( value ) {
 			return function() {
-				add( value, 10 );
+				add( [1,2,3], 1, {
+					'accessor': value
+				});
 			};
 		}
 	});
 
-	it( 'should throw an error if provided a second argument which is not an array or number primitive', function test() {
+	it( 'should throw an error if provided an array and an unrecognized/unsupported data type option', function test() {
 		var values = [
-			new Number( 5 ),
-			'5',
-			null,
-			undefined,
-			NaN,
-			true,
-			{},
-			function(){}
+			'beep',
+			'boop'
 		];
 
 		for ( var i = 0; i < values.length; i++ ) {
-			expect( badValue( values[i] ) ).to.throw( TypeError );
+			expect( badValue( values[i] ) ).to.throw( Error );
 		}
+		function badValue( value ) {
+			return function() {
+				add( [1,2,3], 1, {
+					'dtype': value
+				});
+			};
+		}
+	});
 
+	it( 'should throw an error if provided a matrix and an unrecognized/unsupported data type option', function test() {
+		var values = [
+			'beep',
+			'boop'
+		];
+
+		for ( var i = 0; i < values.length; i++ ) {
+			expect( badValue( values[i] ) ).to.throw( Error );
+		}
+		function badValue( value ) {
+			return function() {
+				add( matrix( [2,2] ), 1, {
+					'dtype': value
+				});
+			};
+		}
+	});
+
+
+	it( 'should throw an error if provided an array and an unsupported second summand', function test() {
+		var values = [
+			'5',
+			true,
+			undefined,
+			null,
+			NaN,
+			{},
+			function(){},
+			matrix( [2,2] )
+		];
+
+		for ( var i = 0; i < values.length; i++ ) {
+			expect( badValue( values[i] ) ).to.throw( Error );
+		}
 		function badValue( value ) {
 			return function() {
 				add( [1,2,3], value );
@@ -70,197 +113,410 @@ describe( 'compute-add', function tests() {
 		}
 	});
 
-	it( 'should throw an error if provided an options argument which is not an object', function test() {
+	it( 'should throw an error if provided a matrix and an unsupported second summand', function test() {
 		var values = [
 			'5',
-			5,
-			null,
-			undefined,
-			NaN,
 			true,
-			[],
-			function(){}
-		];
-
-		for ( var i = 0; i < values.length; i++ ) {
-			expect( badValue( values[i] ) ).to.throw( TypeError );
-		}
-
-		function badValue( value ) {
-			return function() {
-				add( [1,2,3], 10, value );
-			};
-		}
-	});
-
-	it( 'should throw an error if provided a copy option which is not a boolean primitive', function test() {
-		var values = [
-			'5',
-			5,
-			null,
 			undefined,
-			NaN,
-			new Boolean( true ),
-			{},
-			[],
-			function(){}
-		];
-
-		for ( var i = 0; i < values.length; i++ ) {
-			expect( badValue( values[i] ) ).to.throw( TypeError );
-		}
-
-		function badValue( value ) {
-			return function() {
-				add( [1,2,3], 10, {
-					'copy': value
-				});
-			};
-		}
-	});
-
-	it( 'should throw an error if provided an accessor option which is not a function', function test() {
-		var values = [
-			'5',
-			5,
 			null,
-			undefined,
 			NaN,
 			{},
+			function(){},
 			[]
 		];
 
 		for ( var i = 0; i < values.length; i++ ) {
-			expect( badValue( values[i] ) ).to.throw( TypeError );
+			expect( badValue( values[i] ) ).to.throw( Error );
 		}
-
 		function badValue( value ) {
 			return function() {
-				add( [1,2,3], 10, {
-					'accessor': value
-				});
+				add( matrix( [2,2] ), value );
 			};
 		}
 	});
 
-	it( 'should throw an error if provided an array as a second argument which is not of equal length to the input array', function test() {
+	it( 'should return NaN if the first argument is neither a number, array-like, or matrix-like', function test() {
+		var values = [
+			// '5', // valid as is array-like (length)
+			true,
+			undefined,
+			null,
+			NaN,
+			function(){},
+			{}
+		];
+
+		for ( var i = 0; i < values.length; i++ ) {
+			assert.isTrue( isnan( add( values[ i ], 1 ) ) );
+		}
+	});
+
+	it( 'should add two numbers', function test() {
+		assert.strictEqual( add( 0, 3 ), 3 );
+		assert.strictEqual( add( -2, 2 ), 0 );
+	});
+
+	it( 'should throw an error if provided a number and an array as the second argument', function test() {
 		expect( foo ).to.throw( Error );
 		function foo() {
-			add( [1,2], [1,2,3] );
+			add( 2, [ 1, 1 ]);
 		}
 	});
 
-	it( 'should not mutate an input array by default', function test() {
-		var data, actual;
+	it( 'should perform an element-wise addtion when provided a plain array and a scalar', function test() {
+		var data, actual, expected;
 
-		data = [ 4, 5, 3, 6, 8 ];
-		actual = add( data, 4 );
+		data = [ 0, 1, 2, 3 ];
+		expected = [
+			1,
+			2,
+			3,
+			4
+		];
 
-		assert.ok( data !== actual );
-	});
-
-	it( 'should perform element-wise addition', function test() {
-		var data, expected, actual;
-
-		// Scalar:
-		data = [ 5, 2, 4, 1, 2 ];
-
-		actual = add( data, 4 );
-		expected = [ 9, 6, 8, 5, 6 ];
+		actual = add( data, 1 );
+		assert.notEqual( actual, data );
 
 		assert.deepEqual( actual, expected );
 
-		// Array of numeric values:
-		data = [ 5, 2, 4, 1, 2 ];
-
-		actual = add( data, [ 5, 2, 4, 1, 1 ] );
-		expected = [ 10, 4, 8, 2, 3 ];
-
-		assert.deepEqual( actual, expected );
-	});
-
-	it( 'should mutate an input array if the `copy` option is `false`', function test() {
-		var data, expected, actual;
-
-		data = [ 4, 5, 3, 6, 8 ];
-
-		actual = add( data, 4, {
+		// Mutate...
+		actual = add( data, 1, {
 			'copy': false
 		});
-		expected = [ 8, 9, 7, 10, 12 ];
+		assert.strictEqual( actual, data );
 
-		assert.ok( data === actual );
+		assert.deepEqual( data, expected );
+
+	});
+
+	it( 'should perform an element-wise addtion when provided a plain array and another array', function test() {
+		var data, actual, expected;
+
+		data = [ 0, 1, 2, 3 ];
+		expected = [
+			0,
+			2,
+			4,
+			6
+		];
+
+		actual = add( data, data );
+		assert.notEqual( actual, data );
+
+		assert.deepEqual( actual, expected );
+
+		// Mutate...
+		actual = add( data, data, {
+			'copy': false
+		});
+		assert.strictEqual( actual, data );
+
+		assert.deepEqual( data, expected );
+
+	});
+
+	it( 'should perform an element-wise addtion when provided a typed array and a scalar', function test() {
+		var data, actual, expected;
+
+		data = new Int8Array( [ 0, 1, 2, 3 ] );
+
+		expected = new Float64Array( [
+			1,
+			2,
+			3,
+			4
+		]);
+
+		actual = add( data, 1 );
+		assert.notEqual( actual, data );
+
+		assert.deepEqual( actual, expected );
+
+		// Mutate:
+		actual = add( data, 1, {
+			'copy': false
+		});
+		expected = new Int8Array( [ 1, 2, 3, 4 ] );
+		assert.strictEqual( actual, data );
+
+		assert.deepEqual( data, expected );
+	});
+
+	it( 'should perform an element-wise addtion when provided a typed array and another typed array', function test() {
+		var data, actual, expected;
+
+		data = new Int8Array( [ 0, 1, 2, 3 ] );
+
+		expected = new Float64Array( [
+			0,
+			2,
+			4,
+			6
+		]);
+
+		actual = add( data, data );
+		assert.notEqual( actual, data );
+		assert.deepEqual( actual, expected );
+
+		// Mutate:
+
+		actual = add( data, data, {
+			'copy': false
+		});
+		expected = new Int8Array( [ 0, 2, 4, 6 ] );
+		assert.strictEqual( actual, data );
+
+		assert.deepEqual( data, expected );
+	});
+
+	it( 'should perform an element-wise addition and return an array of a specific type', function test() {
+		var data, actual, expected;
+
+		data = [ 0, 1, 2, 3 ];
+		expected = new Int8Array( [ 1, 2, 3, 4 ] );
+
+		actual = add( data, 1, {
+			'dtype': 'int8'
+		});
+		assert.notEqual( actual, data );
+		assert.strictEqual( actual.BYTES_PER_ELEMENT, 1 );
 		assert.deepEqual( actual, expected );
 	});
 
-	it( 'should perform element-wise addition using an accessor', function test() {
-		var data, expected, actual;
+	it( 'should perform an element-wise addition of a scalar using an accessor', function test() {
+		var data, actual, expected;
 
 		data = [
-			{'x':5},
-			{'x':2},
-			{'x':4},
-			{'x':1},
-			{'x':2}
+			[3,0],
+			[4,1],
+			[5,2],
+			[6,3]
 		];
-		expected = [ 9, 6, 8, 5, 6 ];
 
-		actual = add( data, 4, {
+		expected = [
+			1,
+			2,
+			3,
+			4
+		];
+
+		actual = add( data, 1, {
 			'accessor': getValue
 		});
+		assert.notEqual( actual, data );
+
 		assert.deepEqual( actual, expected );
 
+		// Mutate:
+		actual = add( data, 1, {
+			'accessor': getValue,
+			'copy': false
+		});
+		assert.strictEqual( actual, data );
+
+		assert.deepEqual( data, expected );
+
 		function getValue( d ) {
-			return d.x;
+			return d[ 1 ];
 		}
 	});
 
-	it( 'should perform element-wise addition when provided an array and using an accessor', function test() {
-		var data, arr, expected, actual;
+	it( 'should perform an element-wise addition two object arrays using an accessor', function test() {
+		var data, actual, expected, y;
 
 		data = [
-			{'x':5},
-			{'x':2},
-			{'x':4},
+			{'x':0},
 			{'x':1},
-			{'x':2}
+			{'x':2},
+			{'x':3}
 		];
 
-		// One array accessed...
-		arr = [ 5, 2, 4, 1, 1 ];
+		y = [
+			{'y':0},
+			{'y':1},
+			{'y':2},
+			{'y':3}
+		];
 
-		actual = add( data, arr, {
-			'accessor': getValue1
+		actual = add( data, y, {
+			'accessor': getValue
 		});
-		expected = [ 10, 4, 8, 2, 3 ];
+
+		expected = [
+			0,
+			2,
+			4,
+			6
+		];
 
 		assert.deepEqual( actual, expected );
 
-		// Both arrays are accessed...
-		arr = [
-			[0,5],
-			[1,2],
-			[2,4],
-			[3,1],
-			[4,1]
-		];
-
-		actual = add( data, arr, {
-			'accessor': getValue2
-		});
-		expected = [ 10, 4, 8, 2, 3 ];
-
-		assert.deepEqual( actual, expected );
-
-		function getValue1( d ) {
-			return d.x;
-		}
-		function getValue2( d, i, j ) {
+		function getValue( d, i, j ) {
 			if ( j === 0 ) {
 				return d.x;
+			} else {
+				return d.y;
 			}
-			return d[ 1 ];
 		}
+
+	});
+
+	it( 'should perform an element-wise addition of a scalar and deep set', function test() {
+		var data, actual, expected;
+
+		data = [
+			{'x':[3,0]},
+			{'x':[4,1]},
+			{'x':[5,2]},
+			{'x':[6,3]}
+		];
+		expected = [
+			{'x':[3,1]},
+			{'x':[4,2]},
+			{'x':[5,3]},
+			{'x':[6,4]}
+		];
+
+		actual = add( data, 1, {
+			'path': 'x.1'
+		});
+
+		assert.strictEqual( actual, data );
+
+		assert.deepEqual( actual, expected );
+
+		// Specify a path with a custom separator...
+		data = [
+			{'x':[3,0]},
+			{'x':[4,1]},
+			{'x':[5,2]},
+			{'x':[6,3]}
+		];
+		actual = add( data, 1, {
+			'path': 'x/1',
+			'sep': '/'
+		});
+		assert.strictEqual( actual, data );
+
+		assert.deepEqual( actual, expected );
+	});
+
+	it( 'should perform an element-wise addition using an array and deep set', function test() {
+		var data, actual, expected, y;
+
+		data = [
+			{'x':0},
+			{'x':1},
+			{'x':2},
+			{'x':3}
+		];
+
+		y = [ 0, 1, 2, 3 ];
+
+		actual = add( data, y, {
+			path: 'x'
+		});
+
+		expected = [
+			{'x':0},
+			{'x':2},
+			{'x':4},
+			{'x':6}
+		];
+
+		assert.strictEqual( data, actual );
+		assert.deepEqual( data, expected);
+
+		// Custom separator...
+		data = [
+			{'x':[9,0]},
+			{'x':[9,1]},
+			{'x':[9,2]},
+			{'x':[9,3]}
+		];
+
+		data = add( data, y, {
+			'path': 'x/1',
+			'sep': '/'
+		});
+		expected = [
+			{'x':[9,0]},
+			{'x':[9,2]},
+			{'x':[9,4]},
+			{'x':[9,6]}
+		];
+
+		assert.deepEqual( data, expected, 'custom separator' );
+	});
+
+	it( 'should perform an element-wise addition when provided a matrix', function test() {
+		var mat,
+			out,
+			d1,
+			d2,
+			d3,
+			i;
+
+		d1 = new Int32Array( 100 );
+		d2 = new Int32Array( 100 );
+		d3 = new Int32Array( 100 );
+		for ( i = 0; i < d1.length; i++ ) {
+			d1[ i ] = i;
+			d2[ i ] = i + i;
+			d3[ i ] = i + 1;
+		}
+
+		// Add matrix and scalar
+		mat = matrix( d1, [10,10], 'int32' );
+		out = add( mat, 1, {
+			'dtype': 'int32'
+		});
+
+		assert.deepEqual( out.data, d3 );
+
+		// Add two matrices
+		mat = matrix( d1, [10,10], 'int32' );
+		out = add( mat, mat, {
+			'dtype': 'int32'
+		});
+
+		assert.deepEqual( out.data, d2 );
+
+		// Add matrix and scalar and mutate...
+		out = add( mat, 1, {
+			'copy': false
+		});
+
+		assert.strictEqual( mat, out );
+		assert.deepEqual( mat.data, d3 );
+	});
+
+	it( 'should perform an element-wise addition of a scalar and return a matrix of a specific type', function test() {
+		var mat,
+			out,
+			d1,
+			d2,
+			i;
+
+		d1 = new Int16Array( 100 );
+		d2 = new Uint16Array( 100 );
+		for ( i = 0; i < d1.length; i++ ) {
+			d1[ i ] = i;
+			d2[ i ] = i + 1;
+		}
+		mat = matrix( d1, [10,10], 'int16' );
+		out = add( mat, 1, {
+			'dtype': 'uint16'
+		});
+
+		assert.strictEqual( out.dtype, 'uint16' );
+		assert.deepEqual( out.data, d2 );
+	});
+
+	it( 'should return an empty data structure if provided an empty data structure', function test() {
+		assert.deepEqual( add( [], 1 ), [] );
+		assert.deepEqual( add( matrix( [0,0] ), 1 ).data, matrix( [0,0] ).data );
+		assert.deepEqual( add( new Int8Array(), 1 ), new Float64Array() );
 	});
 
 });
