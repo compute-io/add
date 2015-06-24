@@ -22,7 +22,7 @@ var add = require( 'compute-add' );
 
 #### add( x, y[, opts] )
 
-Computes an element-wise addition. `x` can be a [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number), [`array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array), [`typed array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays),  [`matrix`](https://github.com/dstructs/matrix) or a single number. `y` has to be either an `array` or `matrix` of equal dimensions as `x` or a single number. The function returns either an `array` with length equal to that of the input `array`, a `matrix` with equal dimensions as input `x` or a single number.
+Computes an element-wise addition. `x` can be a [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number), [`array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array), [`typed array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays) or [`matrix`](https://github.com/dstructs/matrix). `y` has to be either an `array` or `matrix` of equal dimensions as `x` or a single number. The function returns either an `array` with length equal to that of the input `array`, a `matrix` with equal dimensions as input `x` or a single number.
 
 ``` javascript
 var matrix = require( 'dstructs-matrix' ),
@@ -143,21 +143,21 @@ To [deepset](https://github.com/kgryte/utils-deep-set) an object `array`, provid
 
 ``` javascript
 var data = [
-	{'x':[0,4]},
-	{'x':[1,9]},
-	{'x':[2,16]},
-	{'x':[3,25]},
-	{'x':[4,36]}
+	{'x':[0,2]},
+	{'x':[1,3]},
+	{'x':[2,5]},
+	{'x':[3,7]},
+	{'x':[4,11]}
 ];
 
-var out = sqrt( data, 'x|1', '|' );
+var out = add( data, 2, 'x|1', '|' );
 /*
 	[
-		{'x':[0,2]},
-		{'x':[1,3]},
-		{'x':[2,4]},
-		{'x':[3,5]},
-		{'x':[4,6]}
+		{'x':[0,4]},
+		{'x':[1,5]},
+		{'x':[2,7]},
+		{'x':[3,9]},
+		{'x':[4,13]}
 	]
 */
 
@@ -170,18 +170,18 @@ By default, when provided a [`typed array`](https://developer.mozilla.org/en-US/
 ``` javascript
 var data, out;
 
-data = new Int8Array( [4,9,16] );
+data = new Int8Array( [ 1, 2, 3 ] );
 
-out = sqrt( data, {
+out = add( data, 2, {
 	'dtype': 'int32'
 });
-// returns Int32Array( [2,3,4] )
+// returns Int32Array( [3,4,5] )
 
 // Works for plain arrays, as well...
-out = sqrt( [4,9,16], {
+out = add( [ 1, 2, 3 ], 2, {
 	'dtype': 'uint8'
 });
-// returns Uint8Array( [2,3,4] )
+// returns Uint8Array( [3,4,5] )
 ```
 
 By default, the function returns a new data structure. To mutate the input data structure, set the `copy` option to `false`.
@@ -195,7 +195,7 @@ var data,
 
 data = [ 1, 2, 3 ];
 
-out = ad( data, 2, {
+out = add( data, 2, {
 	'copy': false
 });
 // returns [ 3, 4, 5 ]
