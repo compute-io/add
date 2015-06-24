@@ -90,51 +90,6 @@ describe( 'compute-add', function tests() {
 		}
 	});
 
-
-	it( 'should throw an error if provided an array and an unsupported second summand', function test() {
-		var values = [
-			'5',
-			true,
-			undefined,
-			null,
-			NaN,
-			{},
-			function(){},
-			matrix( [2,2] )
-		];
-
-		for ( var i = 0; i < values.length; i++ ) {
-			expect( badValue( values[i] ) ).to.throw( Error );
-		}
-		function badValue( value ) {
-			return function() {
-				add( [1,2,3], value );
-			};
-		}
-	});
-
-	it( 'should throw an error if provided a matrix and an unsupported second summand', function test() {
-		var values = [
-			'5',
-			true,
-			undefined,
-			null,
-			NaN,
-			{},
-			function(){},
-			[]
-		];
-
-		for ( var i = 0; i < values.length; i++ ) {
-			expect( badValue( values[i] ) ).to.throw( Error );
-		}
-		function badValue( value ) {
-			return function() {
-				add( matrix( [2,2] ), value );
-			};
-		}
-	});
-
 	it( 'should return NaN if the first argument is neither a number, array-like, or matrix-like', function test() {
 		var values = [
 			// '5', // valid as is array-like (length)
@@ -156,11 +111,12 @@ describe( 'compute-add', function tests() {
 		assert.strictEqual( add( -2, 2 ), 0 );
 	});
 
-	it( 'should throw an error if provided a number and an array as the second argument', function test() {
-		expect( foo ).to.throw( Error );
-		function foo() {
-			add( 2, [ 1, 1 ]);
-		}
+	it( 'should add a scalar to an array when the argument order is reversed', function test() {
+		var data, actual, expected;
+		data = [ 1, 2 ];
+		actual = add( 2, data );
+		expected = [ 3, 4];
+		assert.deepEqual( actual, expected );
 	});
 
 	it( 'should perform an element-wise addtion when provided a plain array and a scalar', function test() {

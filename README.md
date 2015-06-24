@@ -42,6 +42,10 @@ out = add( data, 2 );
 // returns [ 3, 4, 5 ]
 
 data = [ 1, 2, 3 ];
+out = add( 2, data );
+// returns [ 3, 4, 5 ]
+
+data = [ 1, 2, 3 ];
 out = add( data, [ 2, 1, 0 ] )
 // returns [ 3, 3, 3 ]
 
