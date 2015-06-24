@@ -229,6 +229,62 @@ bool = ( mat === out );
 
 __Note__: mutation is the `array` equivalent of an __add-equal__ (`+=`).
 
+## Notes
+
+*	If an element is __not__ a numeric value, the result of the addition is `NaN`.
+
+	``` javascript
+	var data, out;
+
+	out = add( null, 1 );
+	// returns NaN
+
+	out = add( true, 1 );
+	// returns NaN
+
+	out = add( {'a':'b'}, 1 );
+	// returns NaN
+
+	out = add( [ true, null, [] ], 1 );
+	// returns [ NaN, NaN, NaN ]
+
+	function getValue( d, i ) {
+		return d.x;
+	}
+	data = [
+		{'x':true},
+		{'x':[]},
+		{'x':{}},
+		{'x':null}
+	];
+
+	out = add( data, 1, {
+		'accessor': getValue
+	});
+	// returns [ NaN, NaN, NaN, NaN ]
+
+	out = add( data, 1, {
+		'path': 'x'
+	});
+	/*
+		[
+			{'x':NaN},
+			{'x':NaN},
+			{'x':NaN,
+			{'x':NaN}
+		]
+	*/
+	```
+
+*	Be careful when providing a data structure which contains non-numeric elements and specifying an `integer` output data type, as `NaN` values are cast to `0`.
+
+	``` javascript
+	var out = add( [ true, null, [] ], 1, {
+		'dtype': 'int8'
+	});
+	// returns Int8Array( [0,0,0] );
+	```
+
 ## Examples
 
 ``` javascript
