@@ -54,6 +54,24 @@ describe( 'compute-add', function tests() {
 		}
 	});
 
+	it( 'should throw an error if provided a number as the first argument and an option', function test() {
+		var values = [
+			{'accessor': function getValue( d ) { return d; } },
+			{'copy': false},
+			{'path': 'x'},
+			{'dtype': 'int32'},
+		];
+
+		for ( var i = 0; i < values.length; i++ ) {
+			expect( badValue( values[i] ) ).to.throw( Error );
+		}
+		function badValue( value ) {
+			return function() {
+				add( 1, [1,2,3], value );
+			};
+		}
+	});
+
 	it( 'should throw an error if provided an array and an unrecognized/unsupported data type option', function test() {
 		var values = [
 			'beep',
@@ -273,13 +291,6 @@ describe( 'compute-add', function tests() {
 		];
 
 		actual = add( data, 1, {
-			'accessor': getValue
-		});
-		assert.notEqual( actual, data );
-		assert.deepEqual( actual, expected );
-
-		// reverse argument order
-		actual = add( 1, data, {
 			'accessor': getValue
 		});
 		assert.notEqual( actual, data );
