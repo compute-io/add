@@ -152,6 +152,18 @@ describe( 'compute-add', function tests() {
 		assert.deepEqual( actual, expected );
 	});
 
+	it( 'should add a scalar to a matrix and cast to a different dtype when the argument order is reversed', function test() {
+		var data, actual, expected;
+		data = matrix( new Int8Array( [1,2,3,4] ), [2,2] );
+		actual = add( 2, data, {
+			'dtype': 'int32'
+		});
+		expected = matrix( new Int32Array( [3,4,5,6] ), [2,2] );
+
+		assert.strictEqual( actual.dtype, 'int32' );
+		assert.deepEqual( actual.data, expected.data );
+	});
+
 	it( 'should perform an element-wise addtion when provided a plain array and a scalar', function test() {
 		var data, actual, expected;
 
