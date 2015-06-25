@@ -106,6 +106,22 @@ describe( 'compute-add', function tests() {
 		}
 	});
 
+	it( 'should return NaN if the first argument is a number and the second argument is neither numeric, array-like, or matrix-like', function test() {
+		var values = [
+			// '5', // valid as is array-like (length)
+			true,
+			undefined,
+			null,
+			NaN,
+			function(){},
+			{}
+		];
+
+		for ( var i = 0; i < values.length; i++ ) {
+			assert.isTrue( isnan( add( 1, values[ i ] ) ) );
+		}
+	});
+
 	it( 'should add two numbers', function test() {
 		assert.strictEqual( add( 0, 3 ), 3 );
 		assert.strictEqual( add( -2, 2 ), 0 );
@@ -260,7 +276,13 @@ describe( 'compute-add', function tests() {
 			'accessor': getValue
 		});
 		assert.notEqual( actual, data );
+		assert.deepEqual( actual, expected );
 
+		// reverse argument order
+		actual = add( 1, data, {
+			'accessor': getValue
+		});
+		assert.notEqual( actual, data );
 		assert.deepEqual( actual, expected );
 
 		// Mutate:
