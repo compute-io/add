@@ -58,8 +58,7 @@ describe( 'compute-add', function tests() {
 		var values = [
 			{'accessor': function getValue( d ) { return d; } },
 			{'copy': false},
-			{'path': 'x'},
-			{'dtype': 'int32'},
+			{'path': 'x'}
 		];
 
 		for ( var i = 0; i < values.length; i++ ) {
