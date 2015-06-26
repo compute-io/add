@@ -86,6 +86,41 @@ describe( 'accessor add', function tests() {
 
 	});
 
+	it( 'should perform an element-wise addition of a typed array using an accessor', function test() {
+		var data, actual, expected, y;
+
+		data = [
+			{'x':0},
+			{'x':1},
+			{'x':2},
+			{'x':3}
+		];
+
+		y = new Int32Array( [
+			0,
+			1,
+			2,
+			3
+		]);
+
+		actual = new Array( data.length );
+		actual = add( actual, data, y, getValue );
+
+		expected = [
+			0,
+			2,
+			4,
+			6
+		];
+
+		assert.deepEqual( actual, expected );
+
+		function getValue( d, i ) {
+			return d.x;
+		}
+
+	});
+
 	it( 'should perform an element-wise addition of another object array using an accessor', function test() {
 		var data, actual, expected, y;
 
@@ -147,15 +182,30 @@ describe( 'accessor add', function tests() {
 
 		assert.deepEqual( actual, expected );
 
+		// single non-numeric value
+		y = false;
+		actual = new Array( data.length );
+		actual = add( actual, data, y, getValue );
+		expected = [ NaN, NaN, NaN ];
+
+		assert.deepEqual( actual, expected );
+
+
 		// numeric array
 		y = [ 1, 2, 3 ];
 		actual = new Array( data.length );
 		actual = add( actual, data, y, getValue );
-		expected = [ 2, NaN, 4 ];
+		expected = [ 2, NaN, 6 ];
 
-		function getValue( d, i ) {
-			return d.x;
-		}
+		assert.deepEqual( actual, expected );
+
+		// typed array
+		y = new Int32Array( [1,2,3] );
+		actual = new Array( data.length );
+		actual = add( actual, data, y, getValue );
+		expected = [ 2, NaN, 6 ];
+
+		assert.deepEqual( actual, expected );
 
 		// object array
 		y = [
@@ -165,7 +215,13 @@ describe( 'accessor add', function tests() {
 		];
 		actual = new Array( data.length );
 		actual = add( actual, data, y, getValue2 );
-		expected = [ 2, NaN, 4 ];
+		expected = [ 2, NaN, 6 ];
+
+		assert.deepEqual( actual, expected );
+
+		function getValue( d, i ) {
+			return d.x;
+		}
 
 		function getValue2( d, i, j ) {
 			if ( j === 0 ) {
@@ -181,6 +237,16 @@ describe( 'accessor add', function tests() {
 		expect( foo ).to.throw( Error );
 		function foo() {
 			add( [], [1,2], [1,2,3], getValue );
+		}
+		function getValue( d ) {
+			return d;
+		}
+	});
+
+	it( 'should throw an error if provided a typed array to be added which is not of equal length to the input array', function test() {
+		expect( foo ).to.throw( Error );
+		function foo() {
+			add( [], [1,2], new Int32Array( [1,2,3] ), getValue );
 		}
 		function getValue( d ) {
 			return d;
